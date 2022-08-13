@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose")
-const { Chat } = require("../../models/Chats/chat")
+const { Chat, GroupChat } = require("../../models/Chats/chat")
 
 const getUserMessagesService = async (param, user) => {
   const messages = await Chat.find({

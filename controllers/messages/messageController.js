@@ -16,7 +16,7 @@ const getUserMessagesController = async (req, res) => {
 
     res.status(200).json({ messages })
   } catch (error) {
-    res.status(400).json({ success: false, response: err.message })
+    res.status(400).json({ success: false, response: error.message })
   }
 }
 
@@ -30,7 +30,7 @@ const getGroupMessagesController = async (req, res) => {
 
     res.status(200).json({ messages })
   } catch (error) {
-    res.status(400).json({ success: false, response: err.message })
+    res.status(400).json({ success: false, response: error.message })
   }
 }
 

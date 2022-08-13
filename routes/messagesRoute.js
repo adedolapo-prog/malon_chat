@@ -6,7 +6,7 @@ const {
 const router = express.Router()
 
 //auth routes
-router.get("/:userId", getUserMessagesController)
-router.get("/:groupId", getGroupMessagesController)
+router.get("/private/:userId", getUserMessagesController)
+router.get("/group-chat/:groupId", getGroupMessagesController)
 
 module.exports = router
