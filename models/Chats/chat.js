@@ -1,65 +1,64 @@
 const mongoose = require("mongoose")
 
-const conversationSchema = new mongoose.Schema({
+const conversationSchema = new mongoose.Schema(
+  {
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+      required: true,
     },
-    doctorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Doctors",
-        required: true
+    groupId: {
+      type: String,
+      required: true,
     },
-    isLocked: {
-        type: Boolean,
-        default: false
-    },
-    timer: Date,
-    bookingId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Bookings",
-        required: true
-    },
-    client: {
-        type: String,
-        enum: ["User", "Staff"],
-        default: "User"
-    },
-    enterpriseCode: String,
-    videoMeetingDetails: Object
-}, { timestamps: true })
+  },
+  { timestamps: true }
+)
 
-const chatSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: "Users"
-    },
-    doctorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: "Doctors"
-    },
-    conversationId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Conversations",
-        required: true
-    },
+const groupChatSchema = new mongoose.Schema(
+  {
     sender: {
-        type: String,
-        required: true,
-        enum: ["Users", "Doctors"]
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+      required: true,
     },
     message: {
-        type: String,
-        trim: true
+      type: String,
+      required: true,
     },
-    attachment: {
-        type: String
-    }
-}, { timestamps: true })
+    groupId: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+)
+
+const chatSchema = new mongoose.Schema(
+  {
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Users",
+    },
+    receiver: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Users",
+    },
+    message: {
+      type: String,
+      trim: true,
+    },
+  },
+  { timestamps: true }
+)
 
 const Chat = mongoose.model("Chat", chatSchema, "chat")
-const Conversation = mongoose.model("Conversation", conversationSchema, "conversation")
-module.exports = { Chat, Conversation }
+const GroupChat = mongoose.model("GroupChat", groupChatSchema, "groupChat")
+const Conversation = mongoose.model(
+  "Conversation",
+  conversationSchema,
+  "conversation"
+)
+module.exports = { Chat, Conversation, GroupChat }

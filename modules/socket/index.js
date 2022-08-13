@@ -1,11 +1,13 @@
 const { addUser, getUser, removeUser } = require("../../utils/socket")
-// const { sendChatService } = require("../../services/centralService/chat")
 const mongoose = require("mongoose")
-const { Conversation } = require("../../models/Chats/chat")
+const { v4: uuidv4 } = require("uuid")
+const { Conversation, Chat, GroupChat } = require("../../models/Chats/chat")
 const fs = require("fs")
 
 module.exports.socketConnection = async (io) => {
   io.on("connection", async (socket) => {
+
+    //join socket must be called as soon as the connection is made in order to save the user's socketId to the database and easily target the user for private messages
     socket.on("join", async (obj) => {
       const { success, data } = await addUser({
         socketId: socket.id,
@@ -19,55 +21,51 @@ module.exports.socketConnection = async (io) => {
       }
     })
 
+    //create group can be called when a user wants to have a group chat
+    socket.on("create-group", async (obj) => {
+      //create a new room and save the details to the database
+      const groupId = uuidv4()
+      const groupDetails = new Conversation({ groupId, userId: obj.name })
+      await groupDetails.save()
+
+      socket.join(groupId)
+    })
+
     socket.on("join-group", async (obj) => {
-      const user =
-        obj.sender == "Users"
-          ? await getUser(obj.doctorId)
-          : await getUser(obj.userId)
-      socket.join("justin bieber fans")
+      //join an existing room
+      socket.join(obj.groupId)
+      socket.broadcast
+        .to(obj.groupId)
+        .emit("join-group", `${obj.name} joined`)
     })
 
+    //sending real time group messages
     socket.on("group-message", async (obj) => {
-      const user =
-        obj.sender == "Users"
-          ? await getUser(obj.doctorId)
-          : await getUser(obj.userId)
-      socket.to("some room").emit("some event")
+      const groupMessage = new GroupChat({
+        sender: obj.sender,
+        message: obj.message,
+        groupId: obj.groupId,
+      })
+
+      await groupMessage.save()
+      socket.broadcast.to(obj.groupId).emit("group-message", obj.message)
     })
 
+    //private messages between users
     socket.on("private-message", async (obj) => {
       try {
-        const receiver =
-          obj.sender == "Users"
-            ? await getUser(obj.doctorId)
-            : await getUser(obj.userId)
-
-        let conversationId
-        let conversation = await Conversation.findOne({
-          $and: [{ userId: obj.userId }, { doctorId: obj.doctorId }],
-        })
-
-        if (conversation == null) {
-        } else conversationId = conversation._id
+        const receiver = await getUser(obj.recipient)
 
         if (obj.message.trim().length === 0) {
-          throw Error("Error saving chat")
+          throw Error("Please type sth")
         }
 
-        // await sendChatService(
-        //   {
-        //     conversationId,
-        //     message: obj.message,
-        //     userId: obj.userId,
-        //     doctorId: obj.doctorId,
-        //     sender: obj.sender,
-        //   },
-        //   (result) => {
-        //     if (result.status === false) {
-        //       throw new Error("Something went wrong saving the chat...")
-        //     }
-        //   }
-        // )
+        const chat = new Chat({
+          message: obj.message,
+          receiver: obj.recipient,
+          sender: obj.sender,
+        })
+        await chat.save()
 
         socket.to(receiver.socketId).emit("private-message", obj.message)
       } catch (err) {
@@ -77,10 +75,6 @@ module.exports.socketConnection = async (io) => {
 
     socket.on("disconnect", async () => {
       await removeUser(socket.id)
-    })
-
-    socket.on("session-ended", async (payload) => {
-      const { doctorId, bookingId, chatType } = payload
     })
 
     socket.on("error", (error) => {
