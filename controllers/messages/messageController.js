@@ -1,6 +1,7 @@
 const {
   getUserMessagesService,
   getGroupMessagesService,
+  tipUserService,
 } = require("../../services/messages/messageService")
 
 const getUserMessagesController = async (req, res) => {
@@ -34,4 +35,25 @@ const getGroupMessagesController = async (req, res) => {
   }
 }
 
-module.exports = { getUserMessagesController, getGroupMessagesController }
+const tipUserController = async (req, res) => {
+  try {
+    const messages = await tipUserService({
+      param: req.params.userId,
+      body: req.body,
+    })
+
+    if (!messages.success) {
+      throw Error("Unable to tip user")
+    }
+
+    res.status(200).json({ messages })
+  } catch (error) {
+    res.status(400).json({ success: false, response: error.message })
+  }
+}
+
+module.exports = {
+  getUserMessagesController,
+  getGroupMessagesController,
+  tipUserController,
+}
