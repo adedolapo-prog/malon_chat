@@ -1,6 +1,8 @@
 # malon_chat
 
-For the documentation, visit: [https://documenter.getpostman.com/view/15668662/VUjSGPQ3]
+For the documentation, visit: [https://documenter.getpostman.com/view/15668662/VUjSGPQ3] .
+
+
 The env file contains a mongodb url link (MONGO_URI) and the jwt secret (JWT_SECRET)
 
 ---
