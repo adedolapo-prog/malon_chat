@@ -15,7 +15,16 @@ Simply run: npm run dev to start the app
     "type": "Users"
 }
 
-- The creat-group socket is emitted by the person who wants to create a group chat. The groupId is then saved to the db. There is an endpoint to get all group chats for other users who wish to join a particular group. Once they join a group, the socket 'join-group' should be emitted and everyone on the group get notified someone has joined. Sample data for create and join group is:
+- The creat-group socket is emitted by the person who wants to create a group chat. The groupId is then saved to the db. There is an endpoint to get all group chats for other users who wish to join a particular group. Once they join a group, the socket 'join-group' should be emitted and everyone on the group get notified someone has joined. 
+
+Sample data for create group is: 
+
+    - {
+    "name": "62f74a7347368fbf64a8190d",
+    "type": "Users",
+}
+
+Sample data for join group is:
 
     - {
     "name": "62f74a7347368fbf64a8190d",
