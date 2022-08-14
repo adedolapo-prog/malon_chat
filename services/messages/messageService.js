@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose")
-const { Chat, GroupChat } = require("../../models/Chats/chat")
+const { Chat, GroupChat, Conversation } = require("../../models/Chats/chat")
 const { User } = require("../../models/Users/userModel")
 
 const getUserMessagesService = async (param, user) => {
@@ -34,7 +34,17 @@ const getGroupMessagesService = async (param) => {
     throw Error("No messages found")
   }
 
-  return { success: true, response: "Messages successfully fetched", messages }
+  return { success: true, response: "Group messages successfully fetched", messages }
+}
+
+const getGroupsService = async () => {
+  const groups = await Conversation.find({})
+
+  if (groups.length === 0) {
+    throw Error("No groups found")
+  }
+
+  return { success: true, response: "Groups successfully fetched", groups }
 }
 
 const tipUserService = async ({ param, body }) => {
@@ -71,5 +81,6 @@ const tipUserService = async ({ param, body }) => {
 module.exports = {
   getUserMessagesService,
   getGroupMessagesService,
+  getGroupsService,
   tipUserService,
 }
